@@ -14,15 +14,15 @@ This script does not provide a full analysis of all assumptions and diagnostics 
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
-from scipy.stats import t, pearsonr
+from scipy.stats import pearsonr, norm
 
 # Step 1: Generate random X and Y data value
 #np.random.seed(0)  # Uncomment for reproducibility
-X = np.random.rand(5000, 1) * 10  # Generates 5000 random values for independent variable X, scaled between 0 and 10
-noise = np.random.randn(5000, 1)  # Generates random noise to introduce variability
-Y = 2.5 * X + 5 + noise  # dependent variable Y. Linear relationship with noise 
+X = np.random.rand(5000, 1) * 10  # Generates 5000 random values for X, scaled between 0 and 10
+noise = np.random.randn(5000, 1)  # Generates random noise from a standard normal distribution
+Y = 2.5 * X + 5 + noise  # Linear relationship with noise
 
-# Step 2: Calculate and print the Correlation Coefficient to evaluate the strength of the linear association between X and Y
+# Step 2: Calculate and print the Correlation Coefficient
 correlation_coefficient, p_value = pearsonr(X.flatten(), Y.flatten())
 print(f"Pearson Correlation Coefficient: {correlation_coefficient:.2f}")
 
@@ -36,19 +36,18 @@ intercept = model.intercept_ #the intercept of the regression line
 random_value = np.array([[5]]) # you can put your number from the range 0 - 10
 predicted_value = model.predict(random_value) #Predicts Y for the given random X value
 
-# Step 4: Calculate the prediction interval for the forecast value
-confidence_level = 0.95 #Sets the confidence level 95% for the prediction interval.
-degrees_of_freedom = len(X) - 2 #number of observations minus the number of parameters estimated (slope and intercept)
-t_value = t.ppf((1 + confidence_level) / 2., degrees_of_freedom) #calculating the prediction interval 
+# Step 4: Calculate the prediction interval for forecast value using Normal Distribution
+confidence_level = 0.95 #Sets the confidence level for the prediction interval.
+z_value = norm.ppf((1 + confidence_level) / 2) # Z-score for the 95% confidence interval
 
 # Standard error of the estimate and Prediction interval
-se = np.sqrt(np.sum((Y - model.predict(X))**2) / degrees_of_freedom) #the average distance that the observed values fall from the regression line
+se = np.sqrt(np.sum((Y - model.predict(X))**2) / (len(X) - 2)) #the average distance between observed values and the regression line
 mean_x = np.mean(X)
 n = len(X)
-se_pred = se * np.sqrt(1 + 1/n + (random_value - mean_x)**2 / np.sum((X - mean_x)**2)) #the standard error of the prediction
-interval = t_value * se_pred #the prediction interval
-lower_bound = predicted_value - interval #the actual value is expected to fall with 95% confidence
-upper_bound = predicted_value + interval #the actual value is expected to fall with 95% confidence
+se_pred = se * np.sqrt(1 + 1/n + (random_value - mean_x)**2 / np.sum((X - mean_x)**2)) # the standard error of the prediction with uncertainty of predicting a new observation
+interval = z_value * se_pred # the prediction interval
+lower_bound = predicted_value - interval
+upper_bound = predicted_value + interval
 
 print(f"Predicted value for random X = {random_value.flatten()[0]}: {predicted_value.flatten()[0]:.2f}")
 print(f"95% Prediction Interval: ({lower_bound.flatten()[0]:.2f}, {upper_bound.flatten()[0]:.2f})")
