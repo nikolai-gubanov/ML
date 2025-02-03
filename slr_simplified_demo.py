@@ -18,8 +18,8 @@ from scipy.stats import pearsonr, norm
 
 # Step 1: Generate random X and Y data value
 #np.random.seed(0)  # Uncomment for reproducibility
-X = np.random.rand(5000, 1) * 10  # Generates 5000 random values for X, scaled between 0 and 10
-noise = np.random.randn(5000, 1)  # Generates random noise from a standard normal distribution
+X = np.random.rand(20000, 1) * 10  # Generates 20000 random values for X, scaled between 0 and 10
+noise = np.random.randn(20000, 1)  # Generates random noise from a standard normal distribution
 Y = 2.5 * X + 5 + noise  # Linear relationship with noise
 
 # Step 2: Calculate and print the Correlation Coefficient
